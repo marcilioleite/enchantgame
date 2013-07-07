@@ -23,7 +23,6 @@
 	<body>
 		
 		<script>
-			beginFrame = 0
 			Character = enchant.Class.create(enchant.Sprite, {
 				initialize: function() {
 					Sprite.call(this, 32, 64);
@@ -39,7 +38,24 @@
 			    	var distance = Math.sqrt(Math.pow(this.x - x, 2) + Math.pow(this.y - y, 2));
 			    	var speed = 5;
 			    	var duration = distance / speed
-			    	this.frame = [8,8,8,9,9,9,10,10,10,11,11,11]
+			    	
+			    	var dy = this.y - y, dx = this.x - x 
+			    	var angle = Math.atan2(dx, dy) * (180 / Math.PI)
+			    	console.log(angle)
+			    	var backing = [4,4,4,5,5,5,6,6,6,7,7,7]
+			    	var forwarding = [8,8,8,9,9,9,10,10,10,11,11,11]
+			    	var upping = [12,12,12,13,13,13,14,14,14,15,15,15]
+			    	var downing = [0,0,0,1,1,1,2,2,2,3,3,3]
+
+					var direction = forwarding
+					if (angle > 150 && angle <= 180 || angle >= -180 && angle < -150)
+						direction = downing
+					else if (angle > 0 && angle <= 30 || angle >= -30 && angle < 0 )
+						direction = upping
+			    	else if (angle > 30 && angle <= 180)
+			    		direction = backing
+			    	
+			    	this.frame = direction
 			    	
 			        this.tl.clear();
 			        this.tl
