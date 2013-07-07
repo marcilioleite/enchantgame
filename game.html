@@ -23,10 +23,11 @@
 	<body>
 		
 		<script>
+			beginFrame = 0
 			Character = enchant.Class.create(enchant.Sprite, {
 				initialize: function() {
-					Sprite.call(this, 36, 59);
-					this.image = game.assets['chara.png'];
+					Sprite.call(this, 32, 64);
+					this.image = game.assets['soradt3.png'];
 				},
 				onenterframe: function() {
 					
@@ -36,20 +37,25 @@
 				},
 			    walkTo: function(x, y){
 			    	var distance = Math.sqrt(Math.pow(this.x - x, 2) + Math.pow(this.y - y, 2));
-			    	var speed = 5; 
+			    	var speed = 5;
+			    	var duration = distance / speed
+			    	this.frame = [8,8,8,9,9,9,10,10,10,11,11,11]
+			    	
 			        this.tl.clear();
-			        this.tl.repeat(function(){
-			            this.frame = this.age % 2 + 5;
-			        }, 30).and().moveTo(x, y, distance / speed);
+			        this.tl
+			        .moveTo(x, y, duration)
+			        .then(function() {
+			        	this.frame = [9]
+			        });
 			    }
 			});
 		
 			window.onload = function () {
 				enchant();
 				game = new Game(800, 600); 
-				game.preload('chara.png');
+				game.preload('soradt3.png');
 				game.scale = 1;
-
+				
 				game.onload = function() {
 					var scene = new Scene();
 					var character = new Character();
