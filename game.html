@@ -16,53 +16,71 @@
 		<!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
 		<link rel="shortcut icon" href="/favicon.ico" />
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-		
+		<script src="game-util.js"></script>
 		<script src="enchant.min.js"></script>
 	</head>
 
 	<body>
 		
 		<script>
+			var selectedChar = null;
+		
 			Character = enchant.Class.create(enchant.Sprite, {
-				initialize: function() {
+				initialize: function(x, y) {
 					Sprite.call(this, 32, 64);
+					this.x = x;
+					this.y = y;
+					this.readyToMove = false;
 					this.image = game.assets['soradt3.png'];
 				},
 				onenterframe: function() {
 					
 				},
-				ontouchend: function() {
-					
+				ontouchstart: function() {
+					selectedChar = this;
+					this.readyToMove = false;
 				},
-			    walkTo: function(x, y){
-			    	var distance = Math.sqrt(Math.pow(this.x - x, 2) + Math.pow(this.y - y, 2));
-			    	var speed = 5;
-			    	var duration = distance / speed
-			    	
-			    	var dy = this.y - y, dx = this.x - x 
-			    	var angle = Math.atan2(dx, dy) * (180 / Math.PI)
-			    	console.log(angle)
-			    	var backing = [4,4,4,5,5,5,6,6,6,7,7,7]
-			    	var forwarding = [8,8,8,9,9,9,10,10,10,11,11,11]
-			    	var upping = [12,12,12,13,13,13,14,14,14,15,15,15]
-			    	var downing = [0,0,0,1,1,1,2,2,2,3,3,3]
-
-					var direction = forwarding
-					if (angle > 150 && angle <= 180 || angle >= -180 && angle < -150)
-						direction = downing
-					else if (angle > 0 && angle <= 30 || angle >= -30 && angle < 0 )
-						direction = upping
-			    	else if (angle > 30 && angle <= 180)
-			    		direction = backing
-			    	
-			    	this.frame = direction
-			    	
-			        this.tl.clear();
-			        this.tl
-			        .moveTo(x, y, duration)
-			        .then(function() {
-			        	this.frame = [9]
-			        });
+				ontouchend: function() {
+				},
+			    walkTo: function(x, y) {
+			    	if (!this.readyToMove) {
+			    		this.readyToMove = true
+			    	} else {
+				    	var distance = Math.sqrt(Math.pow(this.x - x, 2) + Math.pow(this.y - y, 2));
+				    	var speed = 5;
+				    	var duration = distance / speed
+				    	
+				    	var angle = angular({x: this.x, y: this.y}, {x: x, y: y})
+				    	var backing 	= [4,4,4,5,5,5,6,6,6,7,7,7]
+				    	var forwarding 	= [8,8,8,9,9,9,10,10,10,11,11,11]
+				    	var upping 		= [12,12,12,13,13,13,14,14,14,15,15,15]
+				    	var downing 	= [0,0,0,1,1,1,2,2,2,3,3,3]
+	
+						var direction = null
+	
+						switch ( direcionar(angle) ) {
+							case RIGHT_DIRECTION:
+								direction = forwarding
+								break;
+							case UP_DIRECTION:
+								direction = upping
+								break;
+							case DOWN_DIRECTION:
+								direction = downing;
+								break;
+							default:
+								direction = backing
+								break;
+						}
+						
+				    	this.frame = direction
+				        this.tl.clear();
+				        this.tl
+				        .moveTo(x, y, duration)
+				        .then(function() {
+				        	this.frame = [9]
+				        });
+			    	}
 			    }
 			});
 		
@@ -74,10 +92,13 @@
 				
 				game.onload = function() {
 					var scene = new Scene();
-					var character = new Character();
+					var character = new Character(100,100);
+					var character2 = new Character(200,200);
 					scene.addChild(character);
-					scene.addEventListener('touchstart', function(evt) {
-						character.walkTo(evt.localX - (character.width / 2), evt.localY - (character.height / 2));
+					scene.addChild(character2);
+					scene.addEventListener('touchend', function(evt) {
+						if (selectedChar != null) 
+							selectedChar.walkTo(evt.localX - (character.width / 2), evt.localY - (character.height / 2));
 					});
 					game.pushScene(scene);
 				};
